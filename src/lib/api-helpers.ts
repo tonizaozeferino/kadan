@@ -7,7 +7,7 @@ export async function withAuth(
 ) {
   try {
     const user = await requireUser();
-    const { allowed, remaining, resetAt } = checkRateLimit(user.id);
+    const { allowed, remaining, resetAt } = await checkRateLimit(user.id);
 
     if (!allowed) {
       return NextResponse.json(
@@ -29,7 +29,21 @@ export async function withAuth(
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("API Error:", error);
+
+    // Log errors safely (no sensitive data in production)
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: "error",
+          message: error instanceof Error ? error.message : "Unknown error",
+          type: error instanceof Error ? error.name : typeof error,
+        })
+      );
+    } else {
+      console.error("API Error:", error);
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

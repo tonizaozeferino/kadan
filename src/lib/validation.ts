@@ -14,8 +14,16 @@ export const updateGoalSchema = z.object({
   progress: z.number().int().min(0),
 });
 
+export const createGoalSchema = z.object({
+  text: z.string().min(1).max(255),
+  target: z.number().int().min(1),
+  unit: z.string().min(1).max(50),
+  category: z.string().max(50).optional(),
+  project: z.enum(["strachwitz", "chaunce", "private"]),
+});
+
 export const createTaskSchema = z.object({
-  project: z.enum(["strachwitz", "chaunce"]),
+  project: z.enum(["strachwitz", "chaunce", "private"]),
   text: z.string().min(1).max(500),
   status: z.enum(["backlog", "in_progress", "done"]).optional(),
 });
@@ -26,7 +34,7 @@ export const updateTaskSchema = z.object({
 });
 
 export const updateStatusSchema = z.object({
-  project: z.enum(["strachwitz", "chaunce"]),
+  project: z.enum(["strachwitz", "chaunce", "private"]),
   whatDone: z.string().max(10000).optional(),
   whatNext: z.string().max(10000).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),

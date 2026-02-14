@@ -44,6 +44,7 @@ export const goals = pgTable("goals", {
   unit: varchar("unit", { length: 50 }).notNull(),
   progress: integer("progress").default(0).notNull(),
   category: varchar("category", { length: 50 }),
+  project: varchar("project", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

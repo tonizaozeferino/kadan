@@ -47,6 +47,7 @@ export async function POST() {
           target: g.target,
           unit: g.unit,
           category: g.category,
+          project: g.project,
         }))
       );
     }

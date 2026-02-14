@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import HabitsSection from "@/components/HabitsSection";
 import GoalsSection from "@/components/GoalsSection";
-import KanbanBoard from "@/components/KanbanBoard";
 import StatusSection from "@/components/StatusSection";
-import ProjectSelector from "@/components/ProjectSelector";
+import StatusHistory from "@/components/StatusHistory";
+import GlobalTaskOverview from "@/components/GlobalTaskOverview";
+import ProjectSection from "@/components/ProjectSection";
 import type { ProjectKey, TaskStatus, HabitCategory } from "@/types";
 import { PROJECTS } from "@/types";
 import { formatDate, getLocalDateString } from "@/lib/utils";
@@ -36,14 +37,16 @@ interface TaskData {
   text: string;
   status: TaskStatus;
   date: string;
+  project: ProjectKey;
 }
+
+const PROJECT_KEYS = Object.keys(PROJECTS) as ProjectKey[];
 
 function DashboardInner() {
   const { isLoaded, isSignedIn } = useUser();
-  const [project, setProject] = useState<ProjectKey>("strachwitz");
   const [habits, setHabits] = useState<HabitData[]>([]);
   const [goals, setGoals] = useState<GoalData[]>([]);
-  const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [allTasks, setAllTasks] = useState<TaskData[]>([]);
   const [whatDone, setWhatDone] = useState("");
   const [whatNext, setWhatNext] = useState("");
   const [loading, setLoading] = useState(true);
@@ -51,7 +54,6 @@ function DashboardInner() {
 
   const todayStr = getLocalDateString();
 
-  // Seed default data on first load
   const seedData = useCallback(async () => {
     if (seeded) return;
     try {
@@ -62,27 +64,26 @@ function DashboardInner() {
     }
   }, [seeded]);
 
-  // Fetch all data
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [habitsRes, goalsRes, tasksRes, statusRes] = await Promise.all([
         fetch("/api/habits"),
         fetch("/api/goals"),
-        fetch(`/api/tasks?project=${project}`),
-        fetch(`/api/status?project=${project}&date=${todayStr}`),
+        fetch("/api/tasks"),
+        fetch(`/api/status?project=strachwitz&date=${todayStr}`),
       ]);
 
       const [habitsData, goalsData, tasksData, statusData] = await Promise.all([
         habitsRes.ok ? habitsRes.json() : [],
         goalsRes.ok ? goalsRes.json() : [],
         tasksRes.ok ? tasksRes.json() : [],
-        statusRes.ok ? statusRes.json() : ({ whatDone: "", whatNext: "" }),
+        statusRes.ok ? statusRes.json() : { whatDone: "", whatNext: "" },
       ]);
 
       setHabits(Array.isArray(habitsData) ? habitsData : []);
       setGoals(Array.isArray(goalsData) ? goalsData : []);
-      setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setAllTasks(Array.isArray(tasksData) ? tasksData : []);
       setWhatDone(statusData?.whatDone || "");
       setWhatNext(statusData?.whatNext || "");
     } catch (err) {
@@ -90,7 +91,7 @@ function DashboardInner() {
     } finally {
       setLoading(false);
     }
-  }, [project, todayStr]);
+  }, [todayStr]);
 
   useEffect(() => {
     if (isSignedIn) {
@@ -107,9 +108,7 @@ function DashboardInner() {
         body: JSON.stringify({ date: todayStr }),
       });
       const updated = await res.json();
-      setHabits((prev) =>
-        prev.map((h) => (h.id === id ? updated : h))
-      );
+      setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
     } catch (err) {
       console.error("Failed to toggle habit:", err);
     }
@@ -157,8 +156,8 @@ function DashboardInner() {
     }
   };
 
-  // Task actions
-  const addTask = async (text: string) => {
+  // Task actions (per-project)
+  const makeAddTask = (project: ProjectKey) => async (text: string) => {
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
@@ -166,43 +165,44 @@ function DashboardInner() {
         body: JSON.stringify({ project, text }),
       });
       const created = await res.json();
-      setTasks((prev) => [...prev, created]);
+      setAllTasks((prev) => [...prev, created]);
     } catch (err) {
       console.error("Failed to add task:", err);
     }
   };
 
-  const updateTaskStatus = async (id: string, status: TaskStatus) => {
-    try {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      const updated = await res.json();
-      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-    } catch (err) {
-      console.error("Failed to update task:", err);
-    }
-  };
+  const makeUpdateTaskStatus =
+    (project: ProjectKey) => async (id: string, status: TaskStatus) => {
+      try {
+        const res = await fetch(`/api/tasks/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        const updated = await res.json();
+        setAllTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      } catch (err) {
+        console.error("Failed to update task:", err);
+      }
+    };
 
-  const deleteTask = async (id: string) => {
+  const makeDeleteTask = (_project: ProjectKey) => async (id: string) => {
     try {
       await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      setAllTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error("Failed to delete task:", err);
     }
   };
 
-  // Status actions
+  // Status actions (global — stored under "strachwitz" key for backwards compat)
   const saveStatus = async (data: { whatDone: string; whatNext: string }) => {
     try {
       await fetch("/api/status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          project,
+          project: "strachwitz",
           whatDone: data.whatDone,
           whatNext: data.whatNext,
           date: todayStr,
@@ -243,17 +243,19 @@ function DashboardInner() {
     );
   }
 
+  // Split tasks by project
+  const tasksByProject = Object.fromEntries(
+    PROJECT_KEYS.map((k) => [k, allTasks.filter((t) => t.project === k)])
+  ) as Record<ProjectKey, TaskData[]>;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-gray-800">
-              {PROJECTS[project].emoji} {PROJECTS[project].label}
-            </h1>
-            <ProjectSelector project={project} onChange={setProject} />
-          </div>
+          <h1 className="text-xl font-bold text-gray-800">
+            Tonizao Dashboard
+          </h1>
           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
@@ -273,10 +275,20 @@ function DashboardInner() {
           </div>
         ) : (
           <>
-            {/* Goals */}
-            <GoalsSection goals={goals} onUpdate={updateGoal} />
+            {/* Global Task Overview */}
+            <GlobalTaskOverview tasksByProject={tasksByProject} />
 
-            {/* Habits */}
+            {/* Daily Status (global) */}
+            <StatusSection
+              whatDone={whatDone}
+              whatNext={whatNext}
+              onSave={saveStatus}
+            />
+
+            {/* Status History */}
+            <StatusHistory />
+
+            {/* Habits (shared) */}
             <HabitsSection
               habits={habits}
               todayStr={todayStr}
@@ -285,21 +297,20 @@ function DashboardInner() {
               onAdd={addHabit}
             />
 
-            {/* Status */}
-            <StatusSection
-              whatDone={whatDone}
-              whatNext={whatNext}
-              onSave={saveStatus}
-            />
+            {/* SMART Goals (all, global) */}
+            <GoalsSection goals={goals} onUpdate={updateGoal} />
 
-            {/* Kanban */}
-            <KanbanBoard
-              tasks={tasks}
-              project={project}
-              onAdd={addTask}
-              onUpdateStatus={updateTaskStatus}
-              onDelete={deleteTask}
-            />
+            {/* Project Kanban Boards */}
+            {PROJECT_KEYS.map((key) => (
+              <ProjectSection
+                key={key}
+                project={key}
+                tasks={tasksByProject[key]}
+                onAddTask={makeAddTask(key)}
+                onUpdateTaskStatus={makeUpdateTaskStatus(key)}
+                onDeleteTask={makeDeleteTask(key)}
+              />
+            ))}
           </>
         )}
       </main>

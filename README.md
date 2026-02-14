@@ -88,3 +88,103 @@ src/
 | `npm run build` | Build for production |
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
+
+## API Routes
+
+All API routes require authentication via Clerk.
+
+### Tasks
+- `GET /api/tasks?project={project}` - List tasks
+- `POST /api/tasks` - Create task
+- `PUT /api/tasks/[id]` - Update task
+- `DELETE /api/tasks/[id]` - Delete task
+
+### Habits
+- `GET /api/habits` - List habits
+- `POST /api/habits` - Create habit
+- `PUT /api/habits/[id]` - Toggle habit completion
+- `DELETE /api/habits/[id]` - Delete habit
+
+### Goals
+- `GET /api/goals` - List goals
+- `POST /api/goals` - Create goal
+- `PUT /api/goals/[id]` - Update goal progress
+- `DELETE /api/goals/[id]` - Delete goal
+
+### Status
+- `GET /api/status?project={project}&date={YYYY-MM-DD}` - Get status
+- `POST /api/status` - Update status
+- `GET /api/status/history?days={number}` - Get status history
+
+## Deployment
+
+See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for detailed deployment instructions including:
+- Security pre-deployment checklist
+- Database backup strategy
+- GitHub setup
+- Vercel deployment guide
+
+### Quick Deploy to Vercel
+
+1. Push your code to GitHub
+2. Go to [Vercel](https://vercel.com/new)
+3. Import your repository
+4. Set environment variables:
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+5. Deploy!
+
+**Important**: Review the security checklist in `DEPLOYMENT_CHECKLIST.md` before deploying to production.
+
+## Security Features
+
+- ✅ Authentication required for all API routes
+- ✅ Row-level security (users can only access their own data)
+- ✅ Input validation with Zod schemas
+- ✅ SQL injection protection via Drizzle ORM
+- ✅ Rate limiting (100 requests/hour per user)
+- ✅ Environment variables properly excluded from version control
+
+## Database Schema
+
+### Tables
+
+- **users**: User accounts (linked to Clerk)
+  - `id`, `clerkId`, `email`, `createdAt`, `updatedAt`
+
+- **tasks**: Kanban tasks
+  - `id`, `userId`, `project`, `text`, `status`, `date`, `createdAt`, `updatedAt`
+
+- **habits**: Daily habits with completion tracking
+  - `id`, `userId`, `text`, `category`, `value`, `completedDates[]`, `longestStreak`, `createdAt`, `updatedAt`
+
+- **goals**: Measurable goals
+  - `id`, `userId`, `text`, `target`, `unit`, `progress`, `category`, `project`, `createdAt`, `updatedAt`
+
+- **status_entries**: Daily status updates
+  - `id`, `userId`, `project`, `whatDone`, `whatNext`, `date`, `createdAt`, `updatedAt`
+  - Unique constraint: `(userId, project, date)`
+
+## Development
+
+### Database Commands
+
+```bash
+# Generate migration
+npx drizzle-kit generate
+
+# Push schema to database (recommended for development)
+npx drizzle-kit push
+
+# Open Drizzle Studio (database GUI)
+npx drizzle-kit studio
+```
+
+### Environment Variables
+
+See `.env.example` for all required environment variables.
+
+## License
+
+MIT License - See LICENSE file for details (if applicable)

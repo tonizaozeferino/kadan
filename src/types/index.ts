@@ -38,6 +38,7 @@ export interface Goal {
   unit: string;
   progress: number;
   category: string | null;
+  project: ProjectKey | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,11 +67,12 @@ export interface StatusEntry {
   updatedAt: Date;
 }
 
-export type ProjectKey = "strachwitz" | "chaunce";
+export type ProjectKey = "strachwitz" | "chaunce" | "private";
 
 export const PROJECTS: Record<ProjectKey, { label: string; emoji: string }> = {
   strachwitz: { label: "Strachwitz Consulting", emoji: "🏢" },
   chaunce: { label: "Chaunce Foods", emoji: "🥗" },
+  private: { label: "Private", emoji: "🏠" },
 };
 
 export const CATEGORY_COLORS: Record<HabitCategory, string> = {
@@ -96,9 +98,9 @@ export const DEFAULT_HABITS: Omit<Habit, "id" | "userId" | "completedDates" | "l
 ];
 
 export const DEFAULT_GOALS: Omit<Goal, "id" | "userId" | "progress" | "createdAt" | "updatedAt">[] = [
-  { text: "Financial Independence €13K/month", target: 12, unit: "months", category: "work" },
-  { text: "Save €120K for Portugal House", target: 12, unit: "months", category: "finance" },
-  { text: "Lose 30 kg (2 kg/week)", target: 24, unit: "weeks", category: "health" },
-  { text: "Kids Time 3x per week", target: 52, unit: "weeks", category: "family" },
-  { text: "5 AM Wake-up (6 days/week)", target: 12, unit: "months", category: "routine" },
+  { text: "Financial Independence €13K/month", target: 12, unit: "months", category: "work", project: "strachwitz" },
+  { text: "Save €120K for Portugal House", target: 12, unit: "months", category: "finance", project: "strachwitz" },
+  { text: "Lose 30 kg (2 kg/week)", target: 24, unit: "weeks", category: "health", project: "private" },
+  { text: "Kids Time 3x per week", target: 52, unit: "weeks", category: "family", project: "private" },
+  { text: "5 AM Wake-up (6 days/week)", target: 12, unit: "months", category: "routine", project: "private" },
 ];

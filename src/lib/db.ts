@@ -1,22 +1,21 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import { env } from "./env";
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 function getDb() {
   if (_db) return _db;
 
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }
+  const connectionString = env.DATABASE_URL;
 
   const client = postgres(connectionString, {
     ssl: "require",
-    max: 10,
+    max: process.env.NODE_ENV === "production" ? 1 : 10, // Serverless optimization
     idle_timeout: 20,
     connect_timeout: 10,
+    prepare: false, // Disable prepared statements for serverless
   });
 
   _db = drizzle(client, { schema });
