@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { CATEGORY_COLORS } from "@/types";
 import type { HabitCategory } from "@/types";
+import { getLocalDateString } from "@/lib/utils";
 
 interface HabitData {
   id: string;
@@ -193,6 +194,22 @@ export default function HabitsSection({
                             Best: {habit.longestStreak}d
                           </span>
                         )}
+                      </div>
+                      {/* 30-day heatmap — always anchored to actual today */}
+                      <div className="flex gap-0.5 mt-1.5">
+                        {Array.from({ length: 30 }, (_, i) => {
+                          const d = new Date(getLocalDateString() + "T12:00:00");
+                          d.setDate(d.getDate() - (29 - i));
+                          const dateStr = d.toISOString().split("T")[0];
+                          const done = habit.completedDates.includes(dateStr);
+                          return (
+                            <div
+                              key={dateStr}
+                              className={`w-1.5 h-1.5 rounded-sm flex-shrink-0 ${done ? "bg-green-400" : "bg-gray-200"}`}
+                              title={dateStr}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                     <button

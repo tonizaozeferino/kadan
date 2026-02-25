@@ -15,6 +15,7 @@ interface KanbanBoardProps {
   project: ProjectKey;
   onAdd: (text: string) => void;
   onUpdateStatus: (id: string, status: TaskStatus) => void;
+  onUpdateText?: (id: string, text: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -28,10 +29,30 @@ export default function KanbanBoard({
   tasks,
   onAdd,
   onUpdateStatus,
+  onUpdateText,
   onDelete,
 }: KanbanBoardProps) {
   const [newTask, setNewTask] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
   const dragItem = useRef<string | null>(null);
+
+  const startEdit = (task: TaskData) => {
+    setEditingId(task.id);
+    setEditText(task.text);
+  };
+
+  const commitEdit = useCallback((id: string) => {
+    if (editText.trim() && editText.trim() !== tasks.find(t => t.id === id)?.text) {
+      onUpdateText?.(id, editText.trim());
+    }
+    setEditingId(null);
+  }, [editText, tasks, onUpdateText]);
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
 
   const handleAdd = useCallback(() => {
     if (!newTask.trim()) return;
@@ -105,32 +126,50 @@ export default function KanbanBoard({
                 {colTasks.map((task) => (
                   <div
                     key={task.id}
-                    draggable
-                    onDragStart={() => handleDragStart(task.id)}
+                    draggable={editingId !== task.id}
+                    onDragStart={() => editingId !== task.id && handleDragStart(task.id)}
                     className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:shadow-md transition group"
                   >
-                    <div className="flex items-start justify-between">
-                      <p className="text-sm text-gray-700 flex-1">
-                        {task.text}
-                      </p>
-                      <button
-                        onClick={() => onDelete(task.id)}
-                        className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-2 flex-shrink-0"
-                        title="Delete task"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                    {editingId === task.id ? (
+                      <input
+                        autoFocus
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onBlur={() => commitEdit(task.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") commitEdit(task.id);
+                          if (e.key === "Escape") cancelEdit();
+                        }}
+                        className="w-full text-sm text-gray-700 border border-blue-400 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    ) : (
+                      <div className="flex items-start justify-between">
+                        <p
+                          className="text-sm text-gray-700 flex-1 cursor-text"
+                          title="Click to edit"
+                          onClick={() => onUpdateText && startEdit(task)}
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
+                          {task.text}
+                        </p>
+                        <button
+                          onClick={() => onDelete(task.id)}
+                          className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-2 flex-shrink-0"
+                          title="Delete task"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                     <p className="text-xs text-gray-400 mt-1">
                       {new Date(task.date).toLocaleDateString()}
                     </p>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 import HabitsSection from "@/components/HabitsSection";
 import GoalsSection from "@/components/GoalsSection";
 import StatusSection from "@/components/StatusSection";
@@ -53,6 +54,20 @@ function DashboardInner() {
   const [seeded, setSeeded] = useState(false);
 
   const todayStr = getLocalDateString();
+  const [selectedDate, setSelectedDate] = useState(() => getLocalDateString());
+
+  const addDays = (dateStr: string, days: number): string => {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split("T")[0];
+  };
+
+  const goToPrev = () => setSelectedDate((prev) => addDays(prev, -1));
+  const goToNext = () =>
+    setSelectedDate((prev) => {
+      const next = addDays(prev, 1);
+      return next <= todayStr ? next : prev;
+    });
 
   const seedData = useCallback(async () => {
     if (seeded) return;
@@ -71,7 +86,7 @@ function DashboardInner() {
         fetch("/api/habits"),
         fetch("/api/goals"),
         fetch("/api/tasks"),
-        fetch(`/api/status?project=strachwitz&date=${todayStr}`),
+        fetch(`/api/status?project=strachwitz&date=${selectedDate}`),
       ]);
 
       const [habitsData, goalsData, tasksData, statusData] = await Promise.all([
@@ -91,7 +106,7 @@ function DashboardInner() {
     } finally {
       setLoading(false);
     }
-  }, [todayStr]);
+  }, [selectedDate]);
 
   useEffect(() => {
     if (isSignedIn) {
@@ -105,21 +120,24 @@ function DashboardInner() {
       const res = await fetch(`/api/habits/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: todayStr }),
+        body: JSON.stringify({ date: selectedDate }),
       });
+      if (!res.ok) throw new Error();
       const updated = await res.json();
       setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
-    } catch (err) {
-      console.error("Failed to toggle habit:", err);
+    } catch {
+      toast.error("Failed to update habit");
     }
   };
 
   const deleteHabit = async (id: string) => {
     try {
-      await fetch(`/api/habits/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/habits/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
       setHabits((prev) => prev.filter((h) => h.id !== id));
-    } catch (err) {
-      console.error("Failed to delete habit:", err);
+      toast.success("Habit deleted");
+    } catch {
+      toast.error("Failed to delete habit");
     }
   };
 
@@ -134,10 +152,12 @@ function DashboardInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(habit),
       });
+      if (!res.ok) throw new Error();
       const created = await res.json();
       setHabits((prev) => [...prev, { ...created, currentStreak: 0 }]);
-    } catch (err) {
-      console.error("Failed to add habit:", err);
+      toast.success("Habit added");
+    } catch {
+      toast.error("Failed to add habit");
     }
   };
 
@@ -149,10 +169,38 @@ function DashboardInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ progress }),
       });
+      if (!res.ok) throw new Error();
       const updated = await res.json();
       setGoals((prev) => prev.map((g) => (g.id === id ? updated : g)));
-    } catch (err) {
-      console.error("Failed to update goal:", err);
+    } catch {
+      toast.error("Failed to update goal");
+    }
+  };
+
+  const addGoal = async (goal: { text: string; target: number; unit: string; category: string }) => {
+    try {
+      const res = await fetch("/api/goals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...goal, project: "strachwitz" }),
+      });
+      if (!res.ok) throw new Error();
+      const created = await res.json();
+      setGoals((prev) => [...prev, created]);
+      toast.success("Goal added");
+    } catch {
+      toast.error("Failed to add goal");
+    }
+  };
+
+  const deleteGoal = async (id: string) => {
+    try {
+      const res = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setGoals((prev) => prev.filter((g) => g.id !== id));
+      toast.success("Goal deleted");
+    } catch {
+      toast.error("Failed to delete goal");
     }
   };
 
@@ -164,52 +212,76 @@ function DashboardInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ project, text }),
       });
+      if (!res.ok) throw new Error();
       const created = await res.json();
       setAllTasks((prev) => [...prev, created]);
-    } catch (err) {
-      console.error("Failed to add task:", err);
+      toast.success("Task added");
+    } catch {
+      toast.error("Failed to add task");
     }
   };
 
   const makeUpdateTaskStatus =
-    (project: ProjectKey) => async (id: string, status: TaskStatus) => {
+    (_project: ProjectKey) => async (id: string, status: TaskStatus) => {
       try {
         const res = await fetch(`/api/tasks/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
         });
+        if (!res.ok) throw new Error();
         const updated = await res.json();
         setAllTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      } catch (err) {
-        console.error("Failed to update task:", err);
+      } catch {
+        toast.error("Failed to move task");
+      }
+    };
+
+  const makeUpdateTaskText =
+    (_project: ProjectKey) => async (id: string, text: string) => {
+      try {
+        const res = await fetch(`/api/tasks/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) throw new Error();
+        const updated = await res.json();
+        setAllTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        toast.success("Task updated");
+      } catch {
+        toast.error("Failed to update task");
       }
     };
 
   const makeDeleteTask = (_project: ProjectKey) => async (id: string) => {
     try {
-      await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
       setAllTasks((prev) => prev.filter((t) => t.id !== id));
-    } catch (err) {
-      console.error("Failed to delete task:", err);
+      toast.success("Task deleted");
+    } catch {
+      toast.error("Failed to delete task");
     }
   };
 
   // Status actions (global — stored under "strachwitz" key for backwards compat)
   const saveStatus = async (data: { whatDone: string; whatNext: string }) => {
     try {
-      await fetch("/api/status", {
+      const res = await fetch("/api/status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project: "strachwitz",
           whatDone: data.whatDone,
           whatNext: data.whatNext,
-          date: todayStr,
+          date: selectedDate,
         }),
       });
-    } catch (err) {
-      console.error("Failed to save status:", err);
+      if (!res.ok) throw new Error();
+      toast.success("Status saved", { duration: 1500 });
+    } catch {
+      toast.error("Failed to save status");
     }
   };
 
@@ -263,7 +335,29 @@ function DashboardInner() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Date Banner */}
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
-          <p className="text-lg font-semibold">{formatDate(new Date())}</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={goToPrev}
+              className="p-1 rounded hover:bg-white/20 transition text-xl leading-none"
+              aria-label="Previous day"
+            >
+              ‹
+            </button>
+            <p className="text-lg font-semibold flex-1">
+              {formatDate(new Date(selectedDate + "T00:00:00"))}
+              {selectedDate !== todayStr && (
+                <span className="ml-2 text-sm font-normal text-blue-200">(past)</span>
+              )}
+            </p>
+            <button
+              onClick={goToNext}
+              disabled={selectedDate === todayStr}
+              className="p-1 rounded hover:bg-white/20 transition text-xl leading-none disabled:opacity-30"
+              aria-label="Next day"
+            >
+              ›
+            </button>
+          </div>
           <p className="text-blue-100 text-sm">
             Stay focused. Stay consistent. Build the life you want.
           </p>
@@ -291,14 +385,14 @@ function DashboardInner() {
             {/* Habits (shared) */}
             <HabitsSection
               habits={habits}
-              todayStr={todayStr}
+              todayStr={selectedDate}
               onToggle={toggleHabit}
               onDelete={deleteHabit}
               onAdd={addHabit}
             />
 
             {/* SMART Goals (all, global) */}
-            <GoalsSection goals={goals} onUpdate={updateGoal} />
+            <GoalsSection goals={goals} onUpdate={updateGoal} onDelete={deleteGoal} onAdd={addGoal} />
 
             {/* Project Kanban Boards */}
             {PROJECT_KEYS.map((key) => (
@@ -308,6 +402,7 @@ function DashboardInner() {
                 tasks={tasksByProject[key]}
                 onAddTask={makeAddTask(key)}
                 onUpdateTaskStatus={makeUpdateTaskStatus(key)}
+                onUpdateTaskText={makeUpdateTaskText(key)}
                 onDeleteTask={makeDeleteTask(key)}
               />
             ))}

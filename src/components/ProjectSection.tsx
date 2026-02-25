@@ -22,6 +22,7 @@ interface ProjectSectionProps {
   tasks: TaskData[];
   onAddTask: (text: string) => void;
   onUpdateTaskStatus: (id: string, status: TaskStatus) => void;
+  onUpdateTaskText: (id: string, text: string) => void;
   onDeleteTask: (id: string) => void;
 }
 
@@ -30,6 +31,7 @@ export default function ProjectSection({
   tasks,
   onAddTask,
   onUpdateTaskStatus,
+  onUpdateTaskText,
   onDeleteTask,
 }: ProjectSectionProps) {
   const proj = PROJECTS[project];
@@ -50,6 +52,7 @@ export default function ProjectSection({
         project={project}
         onAdd={onAddTask}
         onUpdateStatus={onUpdateTaskStatus}
+        onUpdateText={onUpdateTaskText}
         onDelete={onDeleteTask}
       />
     </div>

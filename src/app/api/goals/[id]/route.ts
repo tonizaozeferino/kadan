@@ -39,3 +39,23 @@ export async function PUT(
     return NextResponse.json(updated);
   });
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(async (user) => {
+    const { id } = await params;
+
+    const [deleted] = await db
+      .delete(goals)
+      .where(and(eq(goals.id, id), eq(goals.userId, user.id)))
+      .returning();
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  });
+}
