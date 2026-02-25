@@ -1,0 +1,28 @@
+# Sprint Status - Kadan Dashboard Analytics
+# Generated: 2026-02-25
+# Project: kadan
+# Tracking: file-system
+# Story location: _bmad-output/implementation-artifacts/stories/
+
+generated: 2026-02-25
+project: Kadan Dashboard Analytics
+project_key: kadan-analytics
+tracking_system: file-system
+story_location: "_bmad-output/implementation-artifacts/stories/"
+
+development_status:
+  epic-1: in-progress
+  1-1-analytics-api-endpoint: ready-for-dev
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-habit-completion-chart: backlog
+  2-2-goal-velocity-display: backlog
+  2-3-task-throughput-chart: backlog
+  2-4-weekly-summary-card: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-analytics-page-assembly: backlog
+  3-2-dashboard-navigation-link: backlog
+  epic-3-retrospective: optional
