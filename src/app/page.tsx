@@ -328,7 +328,7 @@ function DashboardInner() {
           <h1 className="text-xl font-bold text-gray-800">
             Tonizao Dashboard
           </h1>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </div>
       </header>
 

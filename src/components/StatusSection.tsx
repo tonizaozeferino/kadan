@@ -15,7 +15,7 @@ export default function StatusSection({
 }: StatusSectionProps) {
   const [whatDone, setWhatDone] = useState(initialDone);
   const [whatNext, setWhatNext] = useState(initialNext);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Update state when props change (e.g. project switch)
   useEffect(() => {
