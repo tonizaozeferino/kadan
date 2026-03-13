@@ -97,7 +97,7 @@ export default function StatusHistory() {
   const weeks = groupByWeek(entries);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100">
       <button
         onClick={handleToggle}
         className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors rounded-xl"

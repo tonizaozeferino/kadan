@@ -50,7 +50,7 @@ _Critical rules and patterns for implementing code in Kadan. Focus on unobvious 
 3. **Event handlers**: `on*` for props (`onToggle`, `onDelete`), `make*` for factory functions in page.tsx
 4. **Wrap handlers** in `useCallback` with proper dependency arrays
 5. **Styling**: Pure Tailwind utilities only — no custom CSS beyond `globals.css`
-6. **Card pattern**: `bg-white rounded-xl shadow-sm border border-gray-100 p-6`
+6. **Card pattern**: `bg-white rounded-xl shadow-xs border border-gray-100 p-6`
 7. **Toast**: Import `toast` from `sonner`, use `toast.success()` / `toast.error()`
 
 ### Database

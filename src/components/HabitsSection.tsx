@@ -64,7 +64,7 @@ export default function HabitsSection({
   ).length;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800">Daily Habits</h2>
@@ -99,13 +99,13 @@ export default function HabitsSection({
               placeholder="Habit text..."
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value as HabitCategory)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.key} value={c.key}>
@@ -118,7 +118,7 @@ export default function HabitsSection({
               placeholder="Value (e.g. Health)"
               value={newValue}
               onChange={(e) => setNewValue(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
           </div>
@@ -158,7 +158,7 @@ export default function HabitsSection({
                   >
                     <button
                       onClick={() => onToggle(habit.id)}
-                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
+                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 transition ${
                         isCompleted
                           ? "bg-green-500 border-green-500 text-white"
                           : "border-gray-300 hover:border-green-400"
@@ -205,7 +205,7 @@ export default function HabitsSection({
                           return (
                             <div
                               key={dateStr}
-                              className={`w-1.5 h-1.5 rounded-sm flex-shrink-0 ${done ? "bg-green-400" : "bg-gray-200"}`}
+                              className={`w-1.5 h-1.5 rounded-xs shrink-0 ${done ? "bg-green-400" : "bg-gray-200"}`}
                               title={dateStr}
                             />
                           );
@@ -214,7 +214,7 @@ export default function HabitsSection({
                     </div>
                     <button
                       onClick={() => onDelete(habit.id)}
-                      className="text-gray-300 hover:text-red-500 transition flex-shrink-0"
+                      className="text-gray-300 hover:text-red-500 transition shrink-0"
                       title="Delete habit"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

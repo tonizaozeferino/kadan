@@ -76,7 +76,7 @@ export default function KanbanBoard({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Kanban Board</h2>
 
       {/* Add task */}
@@ -87,7 +87,7 @@ export default function KanbanBoard({
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
         />
         <button
           onClick={handleAdd}
@@ -128,7 +128,7 @@ export default function KanbanBoard({
                     key={task.id}
                     draggable={editingId !== task.id}
                     onDragStart={() => editingId !== task.id && handleDragStart(task.id)}
-                    className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:shadow-md transition group"
+                    className="bg-white rounded-lg p-3 shadow-xs border border-gray-200 cursor-grab active:cursor-grabbing hover:shadow-md transition group"
                   >
                     {editingId === task.id ? (
                       <input
@@ -140,7 +140,7 @@ export default function KanbanBoard({
                           if (e.key === "Enter") commitEdit(task.id);
                           if (e.key === "Escape") cancelEdit();
                         }}
-                        className="w-full text-sm text-gray-700 border border-blue-400 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full text-sm text-gray-700 border border-blue-400 rounded-sm px-2 py-0.5 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
                       />
                     ) : (
                       <div className="flex items-start justify-between">
@@ -153,7 +153,7 @@ export default function KanbanBoard({
                         </p>
                         <button
                           onClick={() => onDelete(task.id)}
-                          className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-2 flex-shrink-0"
+                          className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-2 shrink-0"
                           title="Delete task"
                         >
                           <svg

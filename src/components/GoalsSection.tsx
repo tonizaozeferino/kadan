@@ -43,7 +43,7 @@ export default function GoalsSection({ goals, onUpdate, onDelete, onAdd }: Goals
   }, [newText, newTarget, newUnit, newCategory, onAdd]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-800">SMART Goals</h2>
         {onAdd && (
@@ -66,7 +66,7 @@ export default function GoalsSection({ goals, onUpdate, onDelete, onAdd }: Goals
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             />
             <input
               type="number"
@@ -74,7 +74,7 @@ export default function GoalsSection({ goals, onUpdate, onDelete, onAdd }: Goals
               value={newTarget}
               onChange={(e) => setNewTarget(e.target.value)}
               min={1}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             />
             <input
               type="text"
@@ -82,12 +82,12 @@ export default function GoalsSection({ goals, onUpdate, onDelete, onAdd }: Goals
               value={newUnit}
               onChange={(e) => setNewUnit(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             />
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             >
               {GOAL_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -127,7 +127,7 @@ export default function GoalsSection({ goals, onUpdate, onDelete, onAdd }: Goals
                 {onDelete && (
                   <button
                     onClick={() => onDelete(goal.id)}
-                    className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-1 flex-shrink-0"
+                    className="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 ml-1 shrink-0"
                     title="Delete goal"
                   >
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">

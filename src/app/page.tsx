@@ -295,7 +295,7 @@ function DashboardInner() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
         <div className="bg-white rounded-2xl shadow-xl p-12 max-w-md text-center">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
             Tonizao Dashboard
@@ -334,11 +334,11 @@ function DashboardInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Date Banner */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
+        <div className="bg-linear-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
           <div className="flex items-center gap-3">
             <button
               onClick={goToPrev}
-              className="p-1 rounded hover:bg-white/20 transition text-xl leading-none"
+              className="p-1 rounded-sm hover:bg-white/20 transition text-xl leading-none"
               aria-label="Previous day"
             >
               ‹
@@ -352,7 +352,7 @@ function DashboardInner() {
             <button
               onClick={goToNext}
               disabled={selectedDate === todayStr}
-              className="p-1 rounded hover:bg-white/20 transition text-xl leading-none disabled:opacity-30"
+              className="p-1 rounded-sm hover:bg-white/20 transition text-xl leading-none disabled:opacity-30"
               aria-label="Next day"
             >
               ›

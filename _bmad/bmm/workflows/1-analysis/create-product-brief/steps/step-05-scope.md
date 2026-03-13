@@ -1,6 +1,6 @@
 ---
 name: 'step-05-scope'
-description: 'Define MVP scope with clear boundaries and outline future vision while managing scope creep'
+description: 'Define MVP scope with clear boundaries and outline-solid future vision while managing scope creep'
 
 # File References
 nextStepFile: '{project-root}/_bmad/bmm/workflows/1-analysis/create-product-brief/steps/step-06-complete.md'

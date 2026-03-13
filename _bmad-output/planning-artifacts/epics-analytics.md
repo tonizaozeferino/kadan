@@ -214,7 +214,7 @@ so that I can see my trend at a glance without interpreting charts.
 1. Create `src/components/analytics/WeeklySummary.tsx` — "use client", Tailwind card layout
 2. Compute deltas (current - previous) for each metric
 3. Render up/down arrows with green/red coloring
-4. Match existing card style (bg-white rounded-xl shadow-sm border)
+4. Match existing card style (bg-white rounded-xl shadow-xs border)
 5. Verify build
 
 ---

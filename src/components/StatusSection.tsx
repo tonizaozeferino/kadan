@@ -44,7 +44,7 @@ export default function StatusSection({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Daily Status</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -56,7 +56,7 @@ export default function StatusSection({
             onChange={(e) => handleDoneChange(e.target.value)}
             placeholder="What did you accomplish today?"
             rows={6}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden resize-y"
           />
         </div>
         <div>
@@ -68,7 +68,7 @@ export default function StatusSection({
             onChange={(e) => handleNextChange(e.target.value)}
             placeholder="What are the next steps?"
             rows={6}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden resize-y"
           />
         </div>
       </div>

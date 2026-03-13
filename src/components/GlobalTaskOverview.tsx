@@ -23,7 +23,7 @@ export default function GlobalTaskOverview({ tasksByProject }: GlobalTaskOvervie
   const projectKeys = Object.keys(PROJECTS) as ProjectKey[];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Task Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {projectKeys.map((key) => {

@@ -39,7 +39,7 @@ export default function ProjectSection({
 
   return (
     <div
-      className="rounded-xl border-l-4 bg-white shadow-sm border border-gray-100 p-6"
+      className="rounded-xl border-l-4 bg-white shadow-xs border border-gray-100 p-6"
       style={{ borderLeftColor: borderColor }}
     >
       <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
